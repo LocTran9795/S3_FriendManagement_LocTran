@@ -1,0 +1,17 @@
+FROM golang:latest
+
+RUN mkdir src/app
+WORKDIR /src/app
+COPY . .
+
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+COPY *.go ./
+
+RUN go build -o /friend-management
+
+EXPOSE 8080
+
+CMD ["/my-first-golang-project"]

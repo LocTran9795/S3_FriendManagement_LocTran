@@ -1,0 +1,46 @@
+version: '3'
+services:
+  go:
+    build:
+      context: .
+      dockerfile: DockerFile
+    command: /bin/sh -c "go run main.go"
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
+    ports:
+      - 8080:8080
+    depends_on:
+      - "db"
+    networks:
+      - mynetwork
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Aa@123456
+      POSTGRES_DB: mydb   
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql
+    networks:
+      - mynetwork
+  migrate:
+        image: migrate/migrate
+        volumes:
+            - .:/migration
+        command: /bin/sh -c "migrate -path db/migration -database "postgresql://postgres:Aa@123456@db:5432/mydb?sslmode=disable""
+        depends_on: 
+            - db
+        networks:
+            - mynetwork
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  mynetwork:
+    driver: bridge
